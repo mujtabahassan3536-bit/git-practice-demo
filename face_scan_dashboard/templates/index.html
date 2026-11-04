@@ -1,0 +1,1530 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d18">
+  <title>Face Scan | Control Center</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080d18;
+      --panel: #101827;
+      --panel-raised: #141f30;
+      --panel-soft: #0c1422;
+      --text: #f3f7fc;
+      --muted: #8f9db1;
+      --line: rgba(151, 170, 195, .15);
+      --teal: #58ead2;
+      --teal-dark: #0d8e83;
+      --blue: #60bdf7;
+      --purple: #b49aff;
+      --green: #4ade80;
+      --red: #fb7185;
+      --amber: #fbbf24;
+      --shadow: 0 22px 60px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-width: 320px;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 14% 0%, rgba(30, 113, 130, .13), transparent 34%),
+        radial-gradient(ellipse at 100% 12%, rgba(77, 91, 165, .10), transparent 30%),
+        var(--bg);
+    }
+
+    button { font: inherit; }
+
+    button:focus-visible {
+      outline: 3px solid rgba(88, 234, 210, .65);
+      outline-offset: 3px;
+    }
+
+    .app {
+      width: min(1680px, 100%);
+      margin: 0 auto;
+    }
+
+    /* Header */
+
+    .topbar {
+      min-height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 17px 22px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(16, 24, 39, .88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      flex: 0 0 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: var(--teal);
+      background: rgba(88, 234, 210, .10);
+      border: 1px solid rgba(88, 234, 210, .22);
+    }
+
+    .brand-mark svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .brand-title {
+      margin: 0;
+      color: #f8fbff;
+      font-size: clamp(1.15rem, 2vw, 1.55rem);
+      line-height: 1.15;
+      letter-spacing: -.035em;
+      font-weight: 760;
+    }
+
+    .brand-title span {
+      color: var(--teal);
+    }
+
+    .brand-subtitle {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .camera-state {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid rgba(251, 113, 133, .24);
+      border-radius: 999px;
+      color: #ffabb8;
+      background: rgba(251, 113, 133, .08);
+      font-size: .77rem;
+      font-weight: 800;
+      letter-spacing: .055em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .state-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .camera-state.online {
+      color: var(--green);
+      border-color: rgba(74, 222, 128, .25);
+      background: rgba(74, 222, 128, .08);
+    }
+
+    /* Main layout */
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(310px, .95fr);
+      gap: 20px;
+      align-items: stretch;
+      margin-top: 20px;
+    }
+
+    .camera-panel,
+    .results-panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(16, 24, 39, .92);
+      box-shadow: var(--shadow);
+    }
+
+    .camera-panel {
+      padding: 18px;
+    }
+
+    .panel-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .panel-heading h2 {
+      margin: 0;
+      color: #f5f8fc;
+      font-size: 1.02rem;
+      font-weight: 720;
+      letter-spacing: -.015em;
+    }
+
+    .live-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .live-label::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #637187;
+    }
+
+    .live-label.live {
+      color: var(--green);
+    }
+
+    .live-label.live::before {
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(74, 222, 128, .7);
+    }
+
+    /* Camera preview */
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      min-height: 340px;
+      max-height: 70vh;
+      overflow: hidden;
+      border: 1px solid rgba(158, 177, 202, .18);
+      border-radius: 16px;
+      background: #050a12;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .2);
+    }
+
+    .video-frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #050a12;
+    }
+
+    .video-corner {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border: 1px solid rgba(255, 255, 255, .11);
+      border-radius: 999px;
+      color: #eef8fb;
+      background: rgba(5, 12, 22, .72);
+      backdrop-filter: blur(10px);
+      font-size: .69rem;
+      font-weight: 800;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .video-corner .corner-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #758398;
+    }
+
+    .video-corner.live .corner-dot {
+      background: var(--red);
+      box-shadow: 0 0 10px rgba(251, 113, 133, .8);
+    }
+
+    .camera-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .face-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: #b7c3d3;
+      background: rgba(7, 13, 24, .55);
+      font-size: .8rem;
+      font-weight: 650;
+    }
+
+    .face-indicator .indicator-dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 8px;
+      border-radius: 50%;
+      background: #748197;
+    }
+
+    .face-indicator.detected {
+      color: #aaf5c1;
+      border-color: rgba(74, 222, 128, .22);
+      background: rgba(74, 222, 128, .07);
+    }
+
+    .face-indicator.detected .indicator-dot {
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(74, 222, 128, .6);
+    }
+
+    .face-indicator.searching {
+      color: #f5d58b;
+      border-color: rgba(251, 191, 36, .2);
+    }
+
+    .face-indicator.searching .indicator-dot {
+      background: var(--amber);
+    }
+
+    .face-count {
+      color: #e9f1fa;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Camera controls */
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.25fr;
+      gap: 11px;
+      margin-top: 16px;
+    }
+
+    .control-button {
+      min-height: 58px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      font-size: .91rem;
+      font-weight: 780;
+      letter-spacing: -.01em;
+      cursor: pointer;
+      transition: transform .16s ease, opacity .16s ease,
+        border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .control-button svg {
+      width: 19px;
+      height: 19px;
+      flex: 0 0 auto;
+    }
+
+    .control-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .control-button:disabled {
+      opacity: .38;
+      cursor: not-allowed;
+    }
+
+    .start-button {
+      color: #b8f8e9;
+      background: rgba(30, 115, 105, .16);
+      border-color: rgba(88, 234, 210, .25);
+    }
+
+    .stop-button {
+      color: #ffc1cb;
+      background: rgba(150, 46, 65, .13);
+      border-color: rgba(251, 113, 133, .22);
+    }
+
+    .scan-button {
+      color: #041713;
+      border-color: rgba(88, 234, 210, .55);
+      background: linear-gradient(135deg, #74f2d8, #43d9bd);
+      box-shadow: 0 8px 24px rgba(45, 205, 177, .16);
+      font-size: .98rem;
+    }
+
+    .scan-button:hover:not(:disabled) {
+      box-shadow: 0 10px 28px rgba(45, 205, 177, .26);
+    }
+
+    /* Result cards */
+
+    .results-panel {
+      display: flex;
+      flex-direction: column;
+      padding: 18px;
+    }
+
+    .results-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 1px 1px 15px;
+    }
+
+    .results-heading h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 730;
+      letter-spacing: -.015em;
+    }
+
+    .demo-tag {
+      padding: 6px 9px;
+      border: 1px solid rgba(251, 191, 36, .2);
+      border-radius: 999px;
+      color: #f6d58a;
+      background: rgba(251, 191, 36, .07);
+      font-size: .63rem;
+      font-weight: 850;
+      letter-spacing: .09em;
+      white-space: nowrap;
+    }
+
+    .result-card {
+      position: relative;
+      display: flex;
+      flex: 1 1 0;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 235px;
+      overflow: hidden;
+      padding: 21px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: linear-gradient(145deg, rgba(23, 39, 59, .95), rgba(11, 19, 32, .98));
+    }
+
+    .result-card + .result-card {
+      margin-top: 14px;
+    }
+
+    .result-card::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      right: -75px;
+      bottom: -105px;
+      border-radius: 50%;
+      opacity: .12;
+      pointer-events: none;
+    }
+
+    .marriage-card {
+      border-color: rgba(96, 189, 247, .22);
+    }
+
+    .marriage-card::after {
+      background: var(--blue);
+    }
+
+    .children-card {
+      border-color: rgba(180, 154, 255, .23);
+    }
+
+    .children-card::after {
+      background: var(--purple);
+    }
+
+    .result-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .result-label {
+      margin: 0;
+      color: #dce6f2;
+      font-size: .78rem;
+      font-weight: 850;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .result-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+    }
+
+    .result-icon svg {
+      width: 27px;
+      height: 27px;
+    }
+
+    .marriage-card .result-icon {
+      color: var(--blue);
+      background: rgba(96, 189, 247, .12);
+    }
+
+    .children-card .result-icon {
+      color: var(--purple);
+      background: rgba(180, 154, 255, .12);
+    }
+
+    .result-number {
+      position: relative;
+      z-index: 1;
+      margin: 16px 0 0;
+      font-size: clamp(4rem, 6.2vw, 6.2rem);
+      line-height: .95;
+      font-weight: 820;
+      letter-spacing: -.075em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .marriage-card .result-number {
+      color: #83d0ff;
+    }
+
+    .children-card .result-number {
+      color: #c8b5ff;
+    }
+
+    .result-caption {
+      position: relative;
+      z-index: 1;
+      margin: 12px 0 0;
+      color: #8291a6;
+      font-size: .76rem;
+    }
+
+    .demo-disclaimer {
+      margin: 14px 2px 0;
+      color: #8391a5;
+      font-size: .71rem;
+      line-height: 1.5;
+    }
+
+    .demo-disclaimer strong {
+      color: #b6c3d3;
+      font-weight: 700;
+    }
+
+    /* Notifications */
+
+    .toast {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(74, 222, 128, .22);
+      border-radius: 11px;
+      color: #b9f5ca;
+      background: rgba(74, 222, 128, .07);
+      font-size: .82rem;
+      line-height: 1.45;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .toast.error {
+      color: #ffc4cc;
+      border-color: rgba(251, 113, 133, .24);
+      background: rgba(251, 113, 133, .08);
+    }
+
+    /* Responsive */
+
+    @media (min-width: 1500px) {
+      .workspace {
+        grid-template-columns: minmax(0, 2.25fr) minmax(350px, .9fr);
+      }
+
+      .camera-panel, .results-panel {
+        padding: 21px;
+      }
+
+      .result-card {
+        min-height: 260px;
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 1050px) {
+      body {
+        padding: 16px;
+      }
+
+      .workspace {
+        grid-template-columns: minmax(0, 1.55fr) minmax(280px, .9fr);
+        gap: 14px;
+      }
+
+      .camera-panel, .results-panel {
+        padding: 14px;
+      }
+
+      .video-frame {
+        min-height: 300px;
+      }
+
+      .result-card {
+        min-height: 205px;
+        padding: 17px;
+      }
+
+      .result-number {
+        font-size: clamp(3.5rem, 6vw, 5rem);
+      }
+
+      .controls {
+        gap: 8px;
+      }
+
+      .control-button {
+        min-height: 54px;
+        padding: 10px;
+        font-size: .83rem;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .video-frame {
+        min-height: 0;
+        max-height: none;
+      }
+
+      .results-panel {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .results-heading,
+      .demo-disclaimer,
+      .toast {
+        grid-column: 1 / -1;
+      }
+
+      .results-heading {
+        margin-bottom: 0;
+      }
+
+      .result-card {
+        min-height: 205px;
+      }
+
+      .result-card + .result-card {
+        margin-top: 0;
+      }
+
+      .result-number {
+        font-size: clamp(3.7rem, 9vw, 5.3rem);
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 10px;
+      }
+
+      .topbar {
+        min-height: 70px;
+        padding: 13px;
+        border-radius: 16px;
+      }
+
+      .brand {
+        gap: 10px;
+      }
+
+      .brand-mark {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+        border-radius: 12px;
+      }
+
+      .brand-subtitle {
+        font-size: .72rem;
+      }
+
+      .camera-state {
+        min-height: 34px;
+        padding: 0 10px;
+        font-size: .67rem;
+      }
+
+      .workspace {
+        margin-top: 12px;
+        gap: 12px;
+      }
+
+      .camera-panel, .results-panel {
+        padding: 12px;
+        border-radius: 17px;
+      }
+
+      .video-frame {
+        min-height: 225px;
+        aspect-ratio: 4 / 3;
+      }
+
+      .controls {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .scan-button {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        min-height: 58px;
+      }
+
+      .control-button {
+        min-height: 48px;
+      }
+
+      .results-panel {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .result-card {
+        min-height: 170px;
+        padding: 13px;
+        border-radius: 14px;
+      }
+
+      .result-label {
+        font-size: .67rem;
+        letter-spacing: .08em;
+      }
+
+      .result-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+      }
+
+      .result-icon svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      .result-number {
+        font-size: clamp(3.2rem, 14vw, 4.4rem);
+        margin-top: 15px;
+      }
+
+      .result-caption {
+        font-size: .68rem;
+      }
+
+      .demo-disclaimer {
+        font-size: .68rem;
+      }
+
+      .panel-heading h2,
+      .results-heading h2 {
+        font-size: .95rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- HEADER -->
+    <header class="topbar">
+
+      <div class="brand">
+
+        <div class="brand-mark" aria-hidden="true">
+
+          <svg viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+
+            <path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/>
+
+            <path d="M7.5 12s1.6-3 4.5-3 4.5 3 4.5 3-1.6 3-4.5 3-4.5-3-4.5-3Z"/>
+
+            <circle cx="12" cy="12" r="1.2"/>
+
+          </svg>
+
+        </div>
+
+        <div>
+
+          <h1 class="brand-title">
+            Face Scan <span>Control Center</span>
+          </h1>
+
+          <p class="brand-subtitle">
+            Live camera · Face detection
+          </p>
+
+        </div>
+
+      </div>
+
+      <div id="topStatus" class="camera-state"
+           role="status" aria-live="polite">
+
+        <span class="state-dot" aria-hidden="true"></span>
+
+        <span id="topStatusText">
+          Camera Offline
+        </span>
+
+      </div>
+
+    </header>
+
+
+    <!-- MAIN WORKSPACE -->
+    <main class="workspace">
+
+      <!-- CAMERA SECTION -->
+      <section class="camera-panel" aria-label="Camera scanner">
+
+        <div class="panel-heading">
+
+          <h2>Live Camera</h2>
+
+          <span id="liveTag" class="live-label">
+            Offline
+          </span>
+
+        </div>
+
+
+        <!-- LIVE VIDEO -->
+        <div class="video-frame">
+
+          <img
+            id="videoStream"
+            src="/video_feed"
+            alt="Live webcam preview with detected face outlines"
+          >
+
+          <div id="videoCorner" class="video-corner">
+
+            <span class="corner-dot" aria-hidden="true"></span>
+
+            <span id="videoCornerText">
+              Camera off
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- FACE STATUS -->
+        <div class="camera-meta">
+
+          <div id="faceIndicator" class="face-indicator"
+               role="status" aria-live="polite">
+
+            <span class="indicator-dot" aria-hidden="true"></span>
+
+            <span id="faceStatusText">
+              No face detected
+            </span>
+
+          </div>
+
+          <div class="face-indicator">
+
+            <span>Faces:</span>
+
+            <strong id="faceCount" class="face-count">0</strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- CAMERA CONTROLS -->
+        <div class="controls">
+
+          <button id="startBtn"
+                  class="control-button start-button"
+                  type="button">
+
+            <svg viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true">
+
+              <path d="M8 5v14l11-7z"/>
+
+            </svg>
+
+            <span>Start Camera</span>
+
+          </button>
+
+
+          <button id="stopBtn"
+                  class="control-button stop-button"
+                  type="button"
+                  disabled>
+
+            <svg viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true">
+
+              <rect x="6" y="6" width="12" height="12" rx="2"/>
+
+            </svg>
+
+            <span>Stop Camera</span>
+
+          </button>
+
+
+          <button id="scanBtn"
+                  class="control-button scan-button"
+                  type="button"
+                  disabled>
+
+            <svg viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true">
+
+              <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/>
+
+              <circle cx="12" cy="12" r="3"/>
+
+            </svg>
+
+            <span id="scanButtonText">Scan Now</span>
+
+          </button>
+
+        </div>
+
+
+        <!-- NOTIFICATIONS -->
+        <div id="toast" class="toast"
+             role="status" aria-live="polite"></div>
+
+      </section>
+
+
+      <!-- RESULTS SECTION -->
+      <aside class="results-panel" aria-label="Scan results">
+
+        <div class="results-heading">
+
+          <h2>Scan Results</h2>
+
+          <span class="demo-tag">
+            DEMO VALUES
+          </span>
+
+        </div>
+
+
+        <!-- MARRIAGES -->
+        <section class="result-card marriage-card"
+                 aria-labelledby="marriageLabel">
+
+          <div class="result-top">
+
+            <h3 id="marriageLabel" class="result-label">
+              Marriages
+            </h3>
+
+            <div class="result-icon" aria-hidden="true">
+
+              <svg viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+
+                <circle cx="9" cy="12" r="5.5"/>
+
+                <circle cx="15" cy="12" r="5.5"/>
+
+              </svg>
+
+            </div>
+
+          </div>
+
+          <div>
+
+            <p id="marriageResult" class="result-number">
+              —
+            </p>
+
+            <p class="result-caption">
+              Marriage count
+            </p>
+
+          </div>
+
+        </section>
+
+
+        <!-- CHILDREN -->
+        <section class="result-card children-card"
+                 aria-labelledby="childrenLabel">
+
+          <div class="result-top">
+
+            <h3 id="childrenLabel" class="result-label">
+              Children
+            </h3>
+
+            <div class="result-icon" aria-hidden="true">
+
+              <svg viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+
+                <circle cx="9" cy="7" r="2.7"/>
+
+                <circle cx="17" cy="9" r="2.2"/>
+
+                <path d="M3.8 19c.3-3.2 2.2-5.1 5.2-5.1s4.9 1.9 5.2 5.1M14.2 14.5c.8-.8 1.7-1.2 2.8-1.2 2.3 0 3.7 1.5 4 4"/>
+
+              </svg>
+
+            </div>
+
+          </div>
+
+          <div>
+
+            <p id="childrenResult" class="result-number">
+              —
+            </p>
+
+            <p class="result-caption">
+              Children count
+            </p>
+
+          </div>
+
+        </section>
+
+
+        <!-- DEMO DISCLAIMER -->
+        <p class="demo-disclaimer">
+
+          <strong>Demo only:</strong>
+          These numbers are randomly generated sample values.
+          A camera cannot determine someone's marriage or family details.
+
+        </p>
+
+      </aside>
+
+    </main>
+
+  </div>
+
+
+  <!-- JAVASCRIPT -->
+  <script>
+
+    "use strict";
+
+    const $ = (id) => document.getElementById(id);
+
+
+    const state = {
+      cameraRunning: false,
+      faceCount: 0,
+      scanning: false,
+      starting: false,
+      stopping: false,
+      lastError: ""
+    };
+
+
+    let toastTimer = null;
+    let statusTimer = null;
+
+
+    // SHOW NOTIFICATION
+    function showToast(message, kind = "success") {
+
+      const toast = $("toast");
+
+      if (!toast) return;
+
+      toast.textContent = message;
+
+      toast.className =
+        `toast show${kind === "error" ? " error" : ""}`;
+
+      if (toastTimer) {
+        window.clearTimeout(toastTimer);
+      }
+
+      toastTimer = window.setTimeout(() => {
+        toast.classList.remove("show");
+      }, 4500);
+
+    }
+
+
+    // UPDATE CAMERA AND FACE STATUS
+    function renderState() {
+
+      const running = state.cameraRunning;
+      const hasFace = state.faceCount > 0;
+      const busy = state.starting || state.stopping;
+
+
+      $("topStatus").classList.toggle("online", running);
+
+      $("topStatusText").textContent =
+        running ? "Camera Online" : "Camera Offline";
+
+
+      $("liveTag").textContent =
+        running ? "Live" : "Offline";
+
+      $("liveTag").classList.toggle("live", running);
+
+
+      $("videoCorner").classList.toggle("live", running);
+
+      $("videoCornerText").textContent =
+        running ? "Live feed" : "Camera off";
+
+
+      const faceIndicator = $("faceIndicator");
+
+      faceIndicator.classList.toggle(
+        "detected",
+        running && hasFace
+      );
+
+      faceIndicator.classList.toggle(
+        "searching",
+        running && !hasFace
+      );
+
+
+      if (!running) {
+
+        $("faceStatusText").textContent =
+          "No face detected";
+
+      } else if (hasFace) {
+
+        $("faceStatusText").textContent =
+          "Face detected";
+
+      } else {
+
+        $("faceStatusText").textContent =
+          "Looking for face…";
+
+      }
+
+
+      $("faceCount").textContent =
+        String(state.faceCount);
+
+
+      // Enable scanning only when a face is detected.
+      $("startBtn").disabled = running || busy;
+
+      $("stopBtn").disabled = !running || busy;
+
+      $("scanBtn").disabled =
+        !running || !hasFace || state.scanning || busy;
+
+
+      $("scanButtonText").textContent =
+        state.scanning ? "Scanning…" : "Scan Now";
+
+    }
+
+
+    // API REQUEST FUNCTION
+    async function api(url, options = {}) {
+
+      const response = await fetch(url, {
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        cache: "no-store",
+
+        ...options
+
+      });
+
+
+      const data = await response.json().catch(() => ({}));
+
+
+      if (!response.ok || data.ok === false) {
+
+        throw new Error(
+          data.message || `Request failed (${response.status})`
+        );
+
+      }
+
+      return data;
+
+    }
+
+
+    // REFRESH CAMERA STATUS
+    async function refreshStatus() {
+
+      try {
+
+        const data = await api("/api/status");
+
+        state.cameraRunning =
+          Boolean(data.camera_running);
+
+        state.faceCount =
+          Number(data.face_count || 0);
+
+
+        if (data.error && data.error !== state.lastError) {
+
+          showToast(data.error, "error");
+
+        }
+
+        state.lastError = data.error || "";
+
+        renderState();
+
+
+      } catch (error) {
+
+        state.cameraRunning = false;
+        state.faceCount = 0;
+
+        renderState();
+
+
+        if (error.message !== state.lastError) {
+
+          showToast(
+            "Dashboard connection lost. Restart the Python app.",
+            "error"
+          );
+
+        }
+
+        state.lastError = error.message;
+
+      }
+
+    }
+
+
+    // START CAMERA
+    async function startCamera() {
+
+      if (state.starting || state.cameraRunning) {
+        return;
+      }
+
+      state.starting = true;
+
+      renderState();
+
+
+      try {
+
+        const data = await api("/api/camera/start", {
+
+          method: "POST",
+
+          body: JSON.stringify({
+            camera_index: 0
+          })
+
+        });
+
+
+        state.cameraRunning =
+          Boolean(data.camera_running ?? true);
+
+        state.faceCount =
+          Number(data.face_count || 0);
+
+
+        showToast(
+          data.message || "Camera started."
+        );
+
+
+      } catch (error) {
+
+        state.cameraRunning = false;
+        state.faceCount = 0;
+
+        showToast(error.message, "error");
+
+
+      } finally {
+
+        state.starting = false;
+
+        renderState();
+
+        refreshStatus();
+
+      }
+
+    }
+
+
+    // STOP CAMERA
+    async function stopCamera() {
+
+      if (state.stopping || !state.cameraRunning) {
+        return;
+      }
+
+      state.stopping = true;
+
+      renderState();
+
+
+      try {
+
+        const data = await api("/api/camera/stop", {
+
+          method: "POST",
+
+          body: "{}"
+
+        });
+
+
+        state.cameraRunning = false;
+        state.faceCount = 0;
+
+
+        showToast(
+          data.message || "Camera stopped."
+        );
+
+
+      } catch (error) {
+
+        showToast(error.message, "error");
+
+
+      } finally {
+
+        state.stopping = false;
+
+        renderState();
+
+        refreshStatus();
+
+      }
+
+    }
+
+
+    // RUN SCAN
+    async function runScan() {
+
+      if (
+        !state.cameraRunning ||
+        state.faceCount < 1 ||
+        state.scanning
+      ) {
+        return;
+      }
+
+
+      state.scanning = true;
+
+      renderState();
+
+
+      try {
+
+        const data = await api("/api/predict", {
+
+          method: "POST",
+
+          body: "{}"
+
+        });
+
+
+        const marriageCount =
+          data?.result?.marriages;
+
+        const childrenCount =
+          data?.result?.children;
+
+
+        if (
+          marriageCount === undefined ||
+          childrenCount === undefined
+        ) {
+
+          throw new Error(
+            "The scan response did not include both results."
+          );
+
+        }
+
+
+        // Display marriage result.
+        $("marriageResult").textContent =
+          String(marriageCount);
+
+
+        // Display children result.
+        $("childrenResult").textContent =
+          String(childrenCount);
+
+
+        showToast(
+          "Demo scan complete. Results updated."
+        );
+
+
+      } catch (error) {
+
+        showToast(error.message, "error");
+
+
+      } finally {
+
+        state.scanning = false;
+
+        renderState();
+
+        refreshStatus();
+
+      }
+
+    }
+
+
+    // BUTTON EVENTS
+
+    $("startBtn").addEventListener(
+      "click",
+      startCamera
+    );
+
+
+    $("stopBtn").addEventListener(
+      "click",
+      stopCamera
+    );
+
+
+    $("scanBtn").addEventListener(
+      "click",
+      runScan
+    );
+
+
+    // INITIAL STATUS CHECK
+    refreshStatus();
+
+
+    // Update status every 700 milliseconds.
+    statusTimer = window.setInterval(
+      refreshStatus,
+      700
+    );
+
+
+    // CLEANUP
+    window.addEventListener("beforeunload", () => {
+
+      if (statusTimer) {
+        window.clearInterval(statusTimer);
+      }
+
+      if (toastTimer) {
+        window.clearTimeout(toastTimer);
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
