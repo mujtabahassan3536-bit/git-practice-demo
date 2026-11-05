@@ -3,7 +3,7 @@ on:
   push: 
     branches: ["feature/practice"]
 
-job:
+jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
