@@ -22,4 +22,4 @@ jobs:
       - name: Run basic automation test
         run: |
           echo "GitHub Actions Cloud Server par automated pipeline successfully run ho gayi hai!"
-          pythoon -c "print('Python CI Test Passed Successfully!')"
+          python -c "print('Python CI Test Passed Successfully!')"
