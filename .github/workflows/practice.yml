@@ -1,23 +1,26 @@
-name: Practice Multi Job Pipeline
+name: Practice Matrix Strategy
 
 on:
   push:
     branches: [ "feature/practice" ]
 
 jobs:
-  unit-tests:
+  matrix-test:
     runs-on: ubuntu-latest
-    steps:
-      - name: Run Unit Tests
-        run: |
-          echo "Running unit tests for backend..."
-          python -c "print('All tests passed!')"
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
 
-  deploy-docker:
-    runs-on: ubuntu-latest
-    needs: unit-tests
     steps:
-      - name: Build and Push Docker Image
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run Test on Python Version
         run: |
-          echo "Building FastAPI Docker Image..."
-          echo "Docker container successfully deployed!"
+          echo "Testing code on Python version: ${{ matrix.python-version }}"
+          python --version
