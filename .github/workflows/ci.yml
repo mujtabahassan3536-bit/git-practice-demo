@@ -1,0 +1,25 @@
+name: Learn CI CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run basic automation test
+        run: |
+          echo "GitHub Actions Cloud Server par automated pipeline successfully run ho gayi hai!"
+          python -c "print('Python CI Test Passed Successfully!')"
