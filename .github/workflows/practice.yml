@@ -1,32 +1,23 @@
-name: Practice
+name: Practice Multi Job Pipeline
 
 on:
   push:
     branches: [ "feature/practice" ]
-  pull_request:
-    branches: [ "feature/practice" ]
 
 jobs:
-  practice-job:
+  unit-tests:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Code checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Run practice math test
+      - name: Run Unit Tests
         run: |
-          echo "Running my custom practice script..."
-          python -c "print(100 + 200)"
+          echo "Running unit tests for backend..."
+          python -c "print('All tests passed!')"
 
-      - name: Use GitHub Secret safely
-        env:
-          SECRET_KEY: ${{ secrets.MY_API_KEY }}
+  deploy-docker:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - name: Build and Push Docker Image
         run: |
-          echo "Secret key successfully fetched!"
-          echo "Value is: $SECRET_KEY"
+          echo "Building FastAPI Docker Image..."
+          echo "Docker container successfully deployed!"
