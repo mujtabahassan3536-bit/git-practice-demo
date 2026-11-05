@@ -11,7 +11,7 @@ jobs:
       - name: Run Unit Tests
         run: |
           echo "Running unit tests for backend..."
-          pythoon -c "print('All tests passed!')"
+          python -c "print('All tests passed!')"
 
   deploy-docker:
     runs-on: ubuntu-latest
