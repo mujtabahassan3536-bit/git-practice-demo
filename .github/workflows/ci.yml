@@ -1,25 +1,28 @@
-name: Learn CI CD Pipeline
+name: Production Backend CI Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "feature/practice", "main" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
+  test-and-quality:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Download repository code
+      - name: Checkout Code Repository
         uses: actions/checkout@v4
 
-      - name: Setup Python environment
+      - name: Set up Python Environment
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
 
-      - name: Run basic automation test
+      - name: Install Project Dependencies
         run: |
-          echo "GitHub Actions Cloud Server par automated pipeline successfully run ho gayi hai!"
-          python -c "print('Python CI Test Passed Successfully!')"
+          pip install -r requirements.txt
+
+      - name: Execute Automated Pytest Suite
+        run: |
+          pytest -v
