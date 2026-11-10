@@ -149,7 +149,7 @@ class FaceScanner:
 
                 return True, "Camera started successfully."
 
-            except Exception as exc:
+            except Exception as exc: # noqa: BLE001
 
                 self.camera_error = f"Camera start failed: {exc}"
 

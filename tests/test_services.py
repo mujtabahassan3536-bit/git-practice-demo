@@ -1,5 +1,7 @@
 import pytest
+
 from app.services import calculate_discount, is_valid_email
+
 
 @pytest.mark.parametrize("price, discount, expected", [
     (100.0, 10.0, 990.0),
