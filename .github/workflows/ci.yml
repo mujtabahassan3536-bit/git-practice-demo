@@ -23,6 +23,14 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Run Ruff Linter (Code Quality Check)
+        run: |
+          ruff check .
+
+      - name: Run Mypy (Static Type Checker)
+        run: |
+          mypy app/
+
       - name: Execute Automated Pytest Suite
         run: |
           pytest -v
