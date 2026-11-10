@@ -4,3 +4,4 @@ numpy>=1.24
 pytest
 ruff
 mypy
+pytest-cov
